@@ -1,30 +1,29 @@
 package com.aldev.calculator
 
 import android.os.Bundle
-import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.isDigitsOnly
 import com.aldev.calculator.databinding.ActivityMainBinding
-import net.objecthunter.exp4j.ExpressionBuilder
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
     private val TAG = "MainActivity"
 
-    private var resultStatus = false
+    //private var resultStatus = false
 
     // represent error state
-    private var stateError = false
+    //private var stateError = false
 
     // represent last value is number
-    private var stateNumeric = false
+    //private var stateNumeric = false
 
     // represent last value is operator
-    private var stateOperator = false
+    //private var stateOperator = false
 
     // represent last value is dot
-    private var stateDot = false
+    //private var stateDot = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,10 +58,7 @@ class MainActivity : AppCompatActivity() {
     private fun clearAll() {
         binding.tvFormula.text = ""
         binding.tvHistory.text = ""
-        resultStatus = false
-        stateOperator = false
-        stateNumeric = true
-        stateDot = false
+        viewModel.clearAll()
     }
 
     private fun delete() {
@@ -74,46 +70,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun clearFormula() {
         binding.tvFormula.text = ""
-        stateDot = false
-    }
-
-    private fun checkLastInputAlreadySymbol(lastText: String): Boolean {
-        return when (lastText.toDoubleOrNull()) {
-            null -> true
-            else -> false
-        }
+        viewModel.clearFormula()
     }
 
     private fun addNumberToText(input: String) {
-        if (resultStatus) {
-            clearFormula()
-            resultStatus = false
+        when (viewModel.addNumberToText()) {
+            "formula" -> clearFormula()
+            "all" -> clearAll()
         }
-
-        if (stateError) {
-            clearAll()
-            stateError = false
-        }
-
         binding.tvFormula.append(input)
-        stateNumeric = true
-        stateOperator = false
     }
 
     private fun addOperatorToText(input: String) {
-        if (stateNumeric && !stateOperator) {
+        if (viewModel.addOperatorToText()) {
             binding.tvFormula.append(input)
-            stateOperator = true
-            resultStatus = false
-            stateDot = false
         }
     }
 
     private fun addDotToText() {
-        if (stateNumeric && !stateDot) {
+        if (viewModel.addDotToText()) {
             binding.tvFormula.append(getString(R.string.dot))
-            stateDot = true
-            resultStatus = false
         }
     }
 
@@ -122,28 +98,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun calculateValue(value: String) {
-
-        if (stateOperator || value.isEmpty() || resultStatus) {
-            return
-        }
-
-        val expression = ExpressionBuilder(value).build()
-
-        try {
-            val calculationResult = expression.evaluate().toBigDecimal().stripTrailingZeros()
-            Log.d(TAG, "result: $calculationResult")
-
-            resultStatus = true
-            stateNumeric = true
-            stateOperator = false
-
-            stateDot = calculationResult.toPlainString().contains(".")
-
-            binding.tvHistory.text = value
-            binding.tvFormula.text = calculationResult.toPlainString()
-        } catch (e: ArithmeticException) {
-            binding.tvFormula.text = "Error"
-            stateError = true
+        when (val result = viewModel.calculateValue(value)) {
+            "" -> return
+            "Error" -> binding.tvFormula.text = result
+            else -> {
+                binding.tvHistory.text = value
+                binding.tvFormula.text = result
+            }
         }
     }
 }
