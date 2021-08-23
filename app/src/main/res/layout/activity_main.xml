@@ -26,18 +26,27 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="1+1" />
 
-        <TextView
-            android:id="@+id/tv_formula"
+        <HorizontalScrollView
+            android:id="@+id/formula_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:lines="1"
-            android:textColor="@color/teal_700"
-            android:textSize="32sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="256" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tv_formula"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:focusable="true"
+                android:lines="1"
+                android:scrollHorizontally="true"
+                android:textColor="@color/teal_700"
+                android:textSize="32sp"
+                tools:text="256" />
+
+        </HorizontalScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -218,7 +227,7 @@
             android:layout_height="0dp"
             android:layout_marginEnd="8dp"
             android:backgroundTint="@color/white"
-            android:text="@string/_4"
+            android:text="@string/_6"
             android:textColor="@color/black"
             android:textSize="28sp"
             app:layout_constraintBottom_toBottomOf="@id/btn_4"
